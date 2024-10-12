@@ -1,0 +1,149 @@
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+  <title>Weather WebApp</title>
+  <style>
+    body {
+      
+     Background-image: url('templates/back.jpg');
+     
+      font-family: Arial, sans-serif;
+      text-align: center;
+      background-color: #f0f0f0;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-color: #f0f0f0;      padding-top: 50px;
+    }
+    h1{
+      color:black;
+    }
+    #weatherImage {
+      width: 300px;
+      height: 300px;
+      margin-top: 20px;
+      border-radius: 25px;
+
+    }
+    #cityname {
+      margin-bottom: 20px;
+    }
+  }
+  </style>
+</head>
+<body>
+  <h1>Weather App</h1>
+  
+   
+  <div id="cityname" class="container">
+   <form autocomplete="off">
+    
+   <input type="search" id='location' name="location" placeholder="Enter a city" class="form-control" style="width: 300px; display: inline-block;" onKeyUp="showResults(this.value)"/>
+<div id="result"></div>
+ </form>
+    <button type="button" id="searchBtn" class="btn btn-primary">Search</button>
+  </div>
+
+   <div id="weatherCondition" class="container">
+    <img id="weatherImage" src="" alt="Weather Image">
+     </div>
+ <h2 id = 'weatherCondition1'>hello</h2>
+
+
+  <div class="info">
+    <h2 id="city">City Name</h2>
+  </div>
+
+  <!-- Weather Data Table -->
+  <div class="container mx-auto">
+    <table class="table table-bordered">
+      <thead>
+        <tr>
+          <th>Temperature (°C)</th>
+          <th>Wind Speed (m/s)</th>
+          <th>Clouds</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td id="temp">--</td>
+          <td id="windspd">--</td>
+          <td id="cloud">--</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+   <div>
+    <button id="convertButton" class="btn btn-warning">Convert to Kelvin</button>
+  </div>
+
+  <script>
+
+    document.addEventListener('DOMContentLoaded', () => {
+      const searchButton = document.getElementById('searchBtn');
+      const locationInput = document.getElementById('location');
+      const locationElement = document.getElementById('city');
+      const temperatureElement = document.getElementById('temp');
+      const windspdElement = document.getElementById('windspd');
+      const cloudElement = document.getElementById('cloud');
+      const weatherImage = document.getElementById('weatherImage');
+      const convertButton = document.getElementById('convertButton');
+      const weatherCon = document.getElementById('weatherCondition1')
+      let currentTempCelsius;
+
+      const apiKey = "83f6fca016bfd8c8e3abdb772471afbe";
+      const apiUrl = "https://api.openweathermap.org/data/2.5/weather?units=metric";
+
+      function fetchWeather(location) {
+        const url = `${apiUrl}&q=${location}&appid=${apiKey}`;
+        fetch(url)
+          .then(response => response.json())
+          .then(data => {
+            const temp = data.main.temp;
+            currentTempCelsius = temp; //  temperature for conversion 
+
+            locationElement.textContent = data.name;
+            temperatureElement.textContent = `${Math.round(temp)}°C`;
+            windspdElement.textContent = `${data.wind.speed} m/s`;
+            cloudElement.textContent = `${data.clouds.all}% clouds`;
+            weatherCon.textContent =`${data.weather[0].description}`;
+            if (temp <= 0) {
+              weatherImage.src = 'templates/snowy.jpg';
+              weatherImage.alt = "Snowy Weather";
+            } else if (temp > 0 && temp <= 20) {
+              weatherImage.src = 'templates/rainy.jpg';
+              weatherImage.alt = "Rainy Weather";
+            } else if (temp > 20) {
+              weatherImage.src = 'templates/sunny.jpg';
+              weatherImage.alt = "Sunny Weather";
+            }
+          })
+          .catch(error => {
+            console.error("Error fetching weather data:", error);
+          });
+      }
+
+      searchButton.addEventListener('click', () => {
+        const location = locationInput.value;
+        if (location) {
+          fetchWeather(location);
+        }
+      });
+
+      convertButton.addEventListener('click', () => {
+        if (currentTempCelsius !== undefined) {
+          const tempInKelvin = currentTempCelsius + 273.15;
+          temperatureElement.textContent = `${tempInKelvin.toFixed(2)}K`;
+        }
+      });
+    });
+  </script>
+</body>
+</html>
+
